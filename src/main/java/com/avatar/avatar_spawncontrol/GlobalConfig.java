@@ -10,23 +10,34 @@ public class GlobalConfig {
     public static ForgeConfigSpec CONFIG;
 
     public static ForgeConfigSpec.ConfigValue<Integer> DISTANT;
-    public static ForgeConfigSpec.ConfigValue<Integer> FREQUENCY;
+    public static ForgeConfigSpec.ConfigValue<Integer> HEIGHT;
+    public static ForgeConfigSpec.ConfigValue<Integer> FREQUENCYCHAT;
+    public static ForgeConfigSpec.ConfigValue<Integer> FREQUENCYDESPAWN;
     static {
         setupConfig();
     }
 
     private static void setupConfig() {
-        BUILDER.comment("Distance Configuration").push("distanceConfig");
-        DISTANT = BUILDER
-                .define("distant", 60);
+        // Configure the distance mobs will spawn from players
+        BUILDER.comment("Minimum distance mobs will spawn away from players").push("distanceConfig");
+        DISTANT = BUILDER.define("distant", 60);
         BUILDER.pop();
 
-        BUILDER.comment(
-                "Frequency Configuration is used to determine how often mobs despawn and chat show information")
-                .push("frequencyConfig");
-        FREQUENCY = BUILDER
-                .define("frequency", 120);
+        // Configure the height mobs will spawn from players
+        BUILDER.comment("Minimum height mobs will spawn above or below players").push("heightConfig");
+        HEIGHT = BUILDER.define("height", 30);
         BUILDER.pop();
+
+        // Configure the frequency of mob despawn and chat information updates
+        BUILDER.comment("Frequency (in seconds) for chat information updates").push("frequencyConfig");
+        FREQUENCYCHAT = BUILDER.define("frequencyChat", 120);
+        BUILDER.pop();
+
+        // Configure the frequency of mob despawn
+        BUILDER.comment("Frequency (in seconds) for mob despawn").push("frequencyDespawn");
+        FREQUENCYDESPAWN = BUILDER.define("frequencyDespawn", 120);
+        BUILDER.pop();
+
         CONFIG = BUILDER.build();
     }
 
@@ -44,12 +55,32 @@ public class GlobalConfig {
         return data;
     }
 
-    public static int loadFrequency() {
+    public static int loadFrequencyChat() {
         // Load the config if not already loaded
         Integer data = 120;
         if (CONFIG.isLoaded()) {
             // Retrieve data from config
-            data = FREQUENCY.get();
+            data = FREQUENCYCHAT.get();
+        }
+        return data;
+    }
+
+    public static int loadFrequencyDespawn() {
+        // Load the config if not already loaded
+        Integer data = 120;
+        if (CONFIG.isLoaded()) {
+            // Retrieve data from config
+            data = FREQUENCYDESPAWN.get();
+        }
+        return data;
+    }
+
+    public static int loadHeight() {
+        // Load the config if not already loaded
+        Integer data = 30;
+        if (CONFIG.isLoaded()) {
+            // Retrieve data from config
+            data = HEIGHT.get();
         }
         return data;
     }

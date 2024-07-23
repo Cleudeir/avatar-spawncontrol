@@ -25,7 +25,9 @@ import net.minecraftforge.fml.common.Mod;
 public class Events {
 
     private static long currentTime = 0;
-    private static int frequency = 120;
+    private static int frequencyChat = 120;
+    private static int frequencyDespawn = 120;
+    private static boolean start = true;
 
     public static boolean checkPeriod(double seconds) {
         double divisor = (double) (seconds * 20);
@@ -41,14 +43,17 @@ public class Events {
     public static void ticksServer(TickEvent.ServerTickEvent event) {
         if (event.phase == TickEvent.Phase.START) {
             ServerLevel world = event.getServer().getLevel(Level.OVERWORLD);
-            if (world == null) {
-                frequency = GlobalConfig.loadFrequency();
+            if (start) {
+                frequencyChat = GlobalConfig.loadFrequencyChat();
+                frequencyDespawn = GlobalConfig.loadFrequencyDespawn();
+                start = false;
             }
             if (world != null) {
                 long time = world.getDayTime();
                 currentTime = time;
                 List<ServerPlayer> players = event.getServer().getPlayerList().getPlayers();
-                if (checkPeriod(frequency)) {
+                System.err.println("Current time: " + frequencyChat);
+                if (checkPeriod(frequencyChat)) {
                     if (players == null)
                         return;
                     Iterable<Entity> allUnits = world.getAllEntities();
@@ -111,16 +116,17 @@ public class Events {
         Entity entity = event.getEntity();
         ServerLevel world = (ServerLevel) entity.level();
         int distance = GlobalConfig.loadDistant();
+        int height = GlobalConfig.loadHeight();
         List<ServerPlayer> players = world.players();
         if (entity.getPersistentData().getBoolean("wasRespawned")) {
             boolean playerNearby = false;
             for (ServerPlayer player : players) {
                 if (player.distanceToSqr(entity.getX(), entity.getY(), entity.getZ()) <= distance &&
-                        Math.abs(player.getY() - entity.getY()) <= distance / 2) {
+                        Math.abs(player.getY() - entity.getY()) <= height) {
                     playerNearby = true;
                 }
             }
-            if (!playerNearby && checkPeriod(frequency)) {
+            if (!playerNearby && checkPeriod(frequencyDespawn)) {
                 entity.discard();
             }
             return;
@@ -129,7 +135,7 @@ public class Events {
         for (ServerPlayer player : players) {
             if (player.distanceToSqr(entity.getX(), entity.getY(), entity.getZ()) <= distance
                     * distance &&
-                    Math.abs(player.getY() - entity.getY()) <= distance / 2) {
+                    Math.abs(player.getY() - entity.getY()) <= height) {
                 playerNearby = true;
             }
         }
