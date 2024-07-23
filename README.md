@@ -12,9 +12,6 @@ java 17
 
 ./gradlew :runClient
 
-# avatar_spawncontrol
-
 # build
 
 ./gradlew build
-# avatar-spawncontrol
