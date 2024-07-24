@@ -11,6 +11,7 @@ public class GlobalConfig {
 
     public static ForgeConfigSpec.ConfigValue<Integer> DISTANT;
     public static ForgeConfigSpec.ConfigValue<Integer> HEIGHT;
+    public static ForgeConfigSpec.ConfigValue<Integer> MAXMOSTERSPERPLAYER;
     public static ForgeConfigSpec.ConfigValue<Integer> FREQUENCYCHAT;
     public static ForgeConfigSpec.ConfigValue<Integer> FREQUENCYDESPAWN;
     static {
@@ -19,12 +20,12 @@ public class GlobalConfig {
 
     private static void setupConfig() {
         // Configure the distance mobs will spawn from players
-        BUILDER.comment("Minimum distance mobs will spawn away from players").push("distanceConfig");
+        BUILDER.comment("Maximum distance mobs will spawn away from players").push("distanceConfig");
         DISTANT = BUILDER.define("distant", 60);
         BUILDER.pop();
 
         // Configure the height mobs will spawn from players
-        BUILDER.comment("Minimum height mobs will spawn above or below players").push("heightConfig");
+        BUILDER.comment("Maximum height mobs will spawn above or below players").push("heightConfig");
         HEIGHT = BUILDER.define("height", 30);
         BUILDER.pop();
 
@@ -36,6 +37,11 @@ public class GlobalConfig {
         // Configure the frequency of mob despawn
         BUILDER.comment("Frequency (in seconds) for mob despawn").push("frequencyDespawn");
         FREQUENCYDESPAWN = BUILDER.define("frequencyDespawn", 120);
+        BUILDER.pop();
+
+        // Configure the maximum number of mobs
+        BUILDER.comment("Maximum number of Monster that can be spawned per player").push("maxMonsterPerPlayer");
+        MAXMOSTERSPERPLAYER = BUILDER.define("maxMonsterPerPlayer", 100);
         BUILDER.pop();
 
         CONFIG = BUILDER.build();
@@ -81,6 +87,16 @@ public class GlobalConfig {
         if (CONFIG.isLoaded()) {
             // Retrieve data from config
             data = HEIGHT.get();
+        }
+        return data;
+    }
+
+    public static int loadMaxMonsterPerPlayer() {
+        // Load the config if not already loaded
+        Integer data = 100;
+        if (CONFIG.isLoaded()) {
+            // Retrieve data from config
+            data = MAXMOSTERSPERPLAYER.get();
         }
         return data;
     }
