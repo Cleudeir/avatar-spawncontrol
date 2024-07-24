@@ -21,6 +21,8 @@
         "MAINHAND",
         "MAXMOSTERS",
         "MAXMOSTERSPERPLAYER",
+        "MOBSBLOCKED",
+        "MOBSUNBLOCKED",
         "MODID",
         "NETHERRACK",
         "Npcs",

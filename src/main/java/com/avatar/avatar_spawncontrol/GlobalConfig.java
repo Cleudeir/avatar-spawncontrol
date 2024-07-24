@@ -3,6 +3,10 @@ package com.avatar.avatar_spawncontrol;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.config.ModConfig;
+// list java
+import java.util.List;
+// ArrayList
+import java.util.ArrayList;
 
 public class GlobalConfig {
 
@@ -14,6 +18,8 @@ public class GlobalConfig {
     public static ForgeConfigSpec.ConfigValue<Integer> MAXMOSTERSPERPLAYER;
     public static ForgeConfigSpec.ConfigValue<Integer> FREQUENCYCHAT;
     public static ForgeConfigSpec.ConfigValue<Integer> FREQUENCYDESPAWN;
+    public static ForgeConfigSpec.ConfigValue<List<String>> MOBSBLOCKED;
+    public static ForgeConfigSpec.ConfigValue<List<String>> MOBSUNBLOCKED;
     static {
         setupConfig();
     }
@@ -40,8 +46,20 @@ public class GlobalConfig {
         BUILDER.pop();
 
         // Configure the maximum number of mobs
-        BUILDER.comment("Maximum number of Monster that can be spawned per player").push("maxMonsterPerPlayer");
+        BUILDER.comment("Maximum number of Monster (only hostile mobs) that can be spawned per player")
+                .push("maxMonsterPerPlayer");
         MAXMOSTERSPERPLAYER = BUILDER.define("maxMonsterPerPlayer", 100);
+        BUILDER.pop();
+
+        BUILDER.comment("Mobs that will not spawn, example: mobs: [\"minecraft:zombie\", \"minecraft:skeleton\"]")
+                .push("mobsBlocked");
+        MOBSBLOCKED = BUILDER.define("mobsBlocked", new ArrayList<>());
+        BUILDER.pop();
+
+        BUILDER.comment(
+                "Mobs that will bypass all rules to spawn, example: mobs: [\"minecraft:spider\", \"minecraft:creeper\"]")
+                .push("mobsUnBlocked");
+        MOBSUNBLOCKED = BUILDER.define("mobsUnBlocked", new ArrayList<>());
         BUILDER.pop();
 
         CONFIG = BUILDER.build();
@@ -97,6 +115,26 @@ public class GlobalConfig {
         if (CONFIG.isLoaded()) {
             // Retrieve data from config
             data = MAXMOSTERSPERPLAYER.get();
+        }
+        return data;
+    }
+
+    public static List<String> loadMobsBlocked() {
+        // Load the config if not already loaded
+        List<String> data = new ArrayList<>();
+        if (CONFIG.isLoaded()) {
+            // Retrieve data from config
+            data = MOBSBLOCKED.get();
+        }
+        return data;
+    }
+
+    public static List<String> loadMobsUnBlocked() {
+        // Load the config if not already loaded
+        List<String> data = new ArrayList<>();
+        if (CONFIG.isLoaded()) {
+            // Retrieve data from config
+            data = MOBSUNBLOCKED.get();
         }
         return data;
     }

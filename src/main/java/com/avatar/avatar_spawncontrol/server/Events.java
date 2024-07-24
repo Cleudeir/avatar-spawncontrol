@@ -1,18 +1,19 @@
 package com.avatar.avatar_spawncontrol.server;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.avatar.avatar_spawncontrol.GlobalConfig;
 import com.avatar.avatar_spawncontrol.Main;
 
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TextColor;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ambient.AmbientCreature;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -23,6 +24,7 @@ import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.living.MobSpawnEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.registries.ForgeRegistries;
 
 @Mod.EventBusSubscriber(modid = Main.MODID)
 public class Events {
@@ -32,7 +34,9 @@ public class Events {
     private static int frequencyDespawn = 120;
     private static int distance = 80;
     private static int height = 30;
-    private static int maxMonsterPerPlayer = 100;
+    private static int maxMonsterPerPlayer = 50;
+    private static List<String> mobsBlocked = new ArrayList<>();
+    private static List<String> mobsUnBlocked = new ArrayList<>();
     private static boolean start = true;
     private static AtomicInteger total = new AtomicInteger(0);
     private static AtomicInteger monster = new AtomicInteger(0);
@@ -65,6 +69,8 @@ public class Events {
                 distance = GlobalConfig.loadDistant();
                 height = GlobalConfig.loadHeight();
                 maxMonsterPerPlayer = GlobalConfig.loadMaxMonsterPerPlayer();
+                mobsBlocked = GlobalConfig.loadMobsBlocked();
+                mobsUnBlocked = GlobalConfig.loadMobsUnBlocked();
                 start = false;
             }
             if (world != null) {
@@ -101,7 +107,6 @@ public class Events {
                             monster.incrementAndGet();
                             total.incrementAndGet();
                         }
-                        System.out.println("Entity type: -" + entity.getClass().getName().toString());
                     });
                 }
                 if (checkPeriod(frequencyChat)) {
@@ -134,50 +139,63 @@ public class Events {
 
     @SubscribeEvent
     public static void onLivingCheckSpawn(MobSpawnEvent event) {
-        if (checkPeriod(1)) {
-            Entity entity = event.getEntity();
-            ServerLevel world = (ServerLevel) entity.level();
-            List<ServerPlayer> players = world.players();
-            if (entity.getPersistentData().getBoolean("wasRespawned")) {
-                boolean playerNearby = false;
-                for (ServerPlayer player : players) {
-                    if (Math.abs(player.getX() - entity.getX()) <= distance &&
-                            Math.abs(player.getZ() - entity.getZ()) <= distance &&
-                            Math.abs(player.getY() - entity.getY()) <= height) {
-                        playerNearby = true;
-                    }
+        Entity entity = event.getEntity();
+        ServerLevel world = (ServerLevel) entity.level();
+        List<ServerPlayer> players = world.players();
+        // check if mobs are blocked
+        String entityName = ForgeRegistries.ENTITY_TYPES.getKey(entity.getType()).toString();
+        // whitelist mobs
+        if (mobsUnBlocked.contains(entityName)) {
+            System.err.println(entityName);
+            entity.getPersistentData().putBoolean("wasRespawned", true);
+            return;
+        }
+        // blacklist mobs
+        if (mobsBlocked.contains(entityName)) {
+            System.err.println(entityName);
+            event.setResult(MobSpawnEvent.Result.DENY);
+            return;
+        }
+
+        // check if was respawned
+        if (entity.getPersistentData().getBoolean("wasRespawned")) {
+            boolean playerNearby = true;
+            for (ServerPlayer player : players) {
+                playerNearby = Math.abs(player.getX() - entity.getX()) <= distance &&
+                        Math.abs(player.getZ() - entity.getZ()) <= distance &&
+                        Math.abs(player.getY() - entity.getY()) <= height;
+                if (playerNearby) {
+                    break;
                 }
-                if (!playerNearby && checkPeriod(frequencyDespawn)) {
-                    entity.discard();
-                }
+            }
+            if (!playerNearby && checkPeriod(frequencyDespawn)) {
+                entity.discard();
+            }
+            return;
+        }
+        // check max monsters
+        if (entity instanceof Monster || entity.getClass().getName().toString().contains("monster")) {
+            int totalMonsters = monster.get();
+            int totalPlayers = playerCount.get();
+            if (totalMonsters >= (maxMonsterPerPlayer * totalPlayers)) {
+                event.setResult(MobSpawnEvent.Result.DENY);
                 return;
             }
-            boolean playerNearby = false;
-            for (ServerPlayer player : players) {
-                if (player.distanceToSqr(entity.getX(), entity.getY(), entity.getZ()) <= distance
-                        * distance &&
-                        Math.abs(player.getY() - entity.getY()) <= height) {
-                    playerNearby = true;
-                }
+        }
+        // check players nearby
+        boolean playerNearby = true;
+        for (ServerPlayer player : players) {
+            playerNearby = Math.abs(player.getX() - entity.getX()) <= distance &&
+                    Math.abs(player.getZ() - entity.getZ()) <= distance &&
+                    Math.abs(player.getY() - entity.getY()) <= height;
+            if (playerNearby) {
+                break;
             }
-
-            if (entity instanceof Monster || entity.getClass().getName().toString().contains("monster")) {
-                int totalMonsters = monster.get();
-                int totalPlayers = playerCount.get();
-                if (totalMonsters >= (maxMonsterPerPlayer * totalPlayers)) {
-                    event.setResult(MobSpawnEvent.Result.DENY);
-                    System.out.println("Entity type: -" + entity.getClass().getName().toString());
-                    return;
-                }
-            }
-            if (!playerNearby) {
-                event.setResult(MobSpawnEvent.Result.DENY);
-            } else {
-                entity.getPersistentData().putBoolean("wasRespawned", true);
-            }
-
-        } else {
+        }
+        if (!playerNearby) {
             event.setResult(MobSpawnEvent.Result.DENY);
+        } else {
+            entity.getPersistentData().putBoolean("wasRespawned", true);
         }
     }
 }
