@@ -37,7 +37,7 @@ public class GlobalConfig {
 
         // Configure the frequency of mob despawn and chat information updates
         BUILDER.comment("Frequency (in seconds) for chat information updates").push("frequencyConfig");
-        FREQUENCYCHAT = BUILDER.define("frequencyChat", 120);
+        FREQUENCYCHAT = BUILDER.define("frequencyChat", 240);
         BUILDER.pop();
 
         // Configure the frequency of mob despawn
@@ -48,7 +48,7 @@ public class GlobalConfig {
         // Configure the maximum number of mobs
         BUILDER.comment("Maximum number of Monster (only hostile mobs) that can be spawned per player")
                 .push("maxMonsterPerPlayer");
-        MAXMOSTERSPERPLAYER = BUILDER.define("maxMonsterPerPlayer", 100);
+        MAXMOSTERSPERPLAYER = BUILDER.define("maxMonsterPerPlayer", 15);
         BUILDER.pop();
 
         BUILDER.comment("Mobs that will not spawn, example: mobs: [\"minecraft:zombie\", \"minecraft:skeleton\"]")
