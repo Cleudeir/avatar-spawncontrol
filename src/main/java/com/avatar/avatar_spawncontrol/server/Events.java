@@ -58,6 +58,7 @@ public class Events {
     public static void ticksServer(TickEvent.ServerTickEvent event) {
         if (event.phase == TickEvent.Phase.START) {
             ServerLevel world = event.getServer().getLevel(Level.OVERWORLD);
+            frequencyChat = 10;
             if (start) {
                 frequencyChat = GlobalConfig.loadFrequencyChat();
                 frequencyDespawn = GlobalConfig.loadFrequencyDespawn();
@@ -74,13 +75,6 @@ public class Events {
                 List<ServerPlayer> players = event.getServer().getPlayerList().getPlayers();
                 Iterable<Entity> allEntities = world.getAllEntities();
                 if (checkPeriod(1)) {
-                    int number = 0;
-                    for (Entity entity : allEntities) {
-                        if (entity instanceof Monster) {
-                            number++;
-                        }
-                    }
-                    System.err.println(number);
 
                     for (ServerPlayer player : players) {
                         double px = player.getX();
@@ -94,7 +88,6 @@ public class Events {
                         List<Mob> mobs = world.getEntitiesOfClass(Mob.class, boundingBox);
                         int count = 0;
                         for (Mob mob : mobs) {
-                            System.out.println(mob.getClass().getName().toString());
                             if (mob.getClass().getName().toString().contains("monster")) {
                                 count++;
                             }
@@ -106,9 +99,16 @@ public class Events {
                 if (checkPeriod(frequencyChat)) {
                     if (players == null || mobPerPlayer.size() == 0)
                         return;
+                    int number = 0;
+                    for (Entity entity : allEntities) {
+                        if (entity instanceof Monster) {
+                            number++;
+                        }
+                    }
 
                     for (ServerPlayer player : players) {
                         message(player, "Monsters around you: " + mobPerPlayer.get(player.getUUID()));
+                        message(player, "Total monsters map: " + number);
                     }
                 }
             }
@@ -125,13 +125,11 @@ public class Events {
         String entityName = ForgeRegistries.ENTITY_TYPES.getKey(entity.getType()).toString();
         // whitelist mobs
         if (mobsUnBlocked.contains(entityName)) {
-            System.err.println(entityName);
             entity.getPersistentData().putBoolean("wasRespawned", true);
             return;
         }
         // blacklist mobs
         if (mobsBlocked.contains(entityName)) {
-            System.err.println(entityName);
             event.setResult(MobSpawnEvent.Result.DENY);
             return;
         }
