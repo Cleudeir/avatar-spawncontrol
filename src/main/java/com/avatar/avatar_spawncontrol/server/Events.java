@@ -3,14 +3,13 @@ package com.avatar.avatar_spawncontrol.server;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-//map
 import java.util.Map;
-//uuid
 import java.util.UUID;
 
 import com.avatar.avatar_spawncontrol.GlobalConfig;
 import com.avatar.avatar_spawncontrol.Main;
 
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TextColor;
@@ -32,9 +31,9 @@ public class Events {
 
     private static long currentTime = 0;
     private static int frequencyChat = 240;
-    private static int frequencyDespawn = 120;
-    private static int distance = 60;
-    private static int height = 30;
+    private static int frequencyDespawn = 60;
+    private static int distance = 80;
+    private static int height = 15;
     private static int maxMonsterPerPlayer = 15;
     private static List<String> mobsBlocked = new ArrayList<>();
     private static List<String> mobsUnBlocked = new ArrayList<>();
@@ -57,8 +56,7 @@ public class Events {
     @SubscribeEvent
     public static void ticksServer(TickEvent.ServerTickEvent event) {
         if (event.phase == TickEvent.Phase.START) {
-            ServerLevel world = event.getServer().getLevel(Level.OVERWORLD);
-            frequencyChat = 10;
+            ServerLevel world = event.getServer().getLevel(Level.OVERWORLD);       
             if (start) {
                 frequencyChat = GlobalConfig.loadFrequencyChat();
                 frequencyDespawn = GlobalConfig.loadFrequencyDespawn();
@@ -81,9 +79,15 @@ public class Events {
                         double py = player.getY();
                         double pz = player.getZ();
 
-                        AABB boundingBox = new AABB(
-                                px - distance, py - height, pz - distance,
-                                px + distance, py + height, pz + distance);
+                        double minX = px - distance;
+                        double minY = py - height;
+                        double minZ = pz - distance;
+                        double maxX = px + distance;
+                        double maxY = py + height;
+                        double maxZ = pz + distance;
+
+                        // Create a new AxisAlignedBB (bounding box)
+                        AABB boundingBox = new AABB(minX, minY, minZ, maxX, maxY, maxZ);
 
                         List<Mob> mobs = world.getEntitiesOfClass(Mob.class, boundingBox);
                         int count = 0;
@@ -93,6 +97,7 @@ public class Events {
                             }
                         }
                         mobPerPlayer.put(player.getUUID(), count);
+
                     }
                 }
                 //
@@ -113,7 +118,6 @@ public class Events {
                 }
             }
         }
-
     }
 
     @SubscribeEvent

@@ -27,12 +27,12 @@ public class GlobalConfig {
     private static void setupConfig() {
         // Configure the distance mobs will spawn from players
         BUILDER.comment("Maximum distance mobs will spawn away from players").push("distanceConfig");
-        DISTANT = BUILDER.define("distant", 60);
+        DISTANT = BUILDER.define("distant", 80);
         BUILDER.pop();
 
         // Configure the height mobs will spawn from players
         BUILDER.comment("Maximum height mobs will spawn above or below players").push("heightConfig");
-        HEIGHT = BUILDER.define("height", 30);
+        HEIGHT = BUILDER.define("height", 15);
         BUILDER.pop();
 
         // Configure the frequency of mob despawn and chat information updates
@@ -42,7 +42,7 @@ public class GlobalConfig {
 
         // Configure the frequency of mob despawn
         BUILDER.comment("Frequency (in seconds) for mob despawn").push("frequencyDespawn");
-        FREQUENCYDESPAWN = BUILDER.define("frequencyDespawn", 120);
+        FREQUENCYDESPAWN = BUILDER.define("frequencyDespawn", 60);
         BUILDER.pop();
 
         // Configure the maximum number of mobs
@@ -71,7 +71,7 @@ public class GlobalConfig {
 
     public static int loadDistant() {
         // Load the config if not already loaded
-        Integer data = 60;
+        Integer data = 80;
         if (CONFIG.isLoaded()) {
             // Retrieve data from config
             data = DISTANT.get();
@@ -91,7 +91,7 @@ public class GlobalConfig {
 
     public static int loadFrequencyDespawn() {
         // Load the config if not already loaded
-        Integer data = 120;
+        Integer data = 60;
         if (CONFIG.isLoaded()) {
             // Retrieve data from config
             data = FREQUENCYDESPAWN.get();
@@ -101,7 +101,7 @@ public class GlobalConfig {
 
     public static int loadHeight() {
         // Load the config if not already loaded
-        Integer data = 30;
+        Integer data = 15;
         if (CONFIG.isLoaded()) {
             // Retrieve data from config
             data = HEIGHT.get();
@@ -111,7 +111,7 @@ public class GlobalConfig {
 
     public static int loadMaxMonsterPerPlayer() {
         // Load the config if not already loaded
-        Integer data = 100;
+        Integer data = 15;
         if (CONFIG.isLoaded()) {
             // Retrieve data from config
             data = MAXMOSTERSPERPLAYER.get();
