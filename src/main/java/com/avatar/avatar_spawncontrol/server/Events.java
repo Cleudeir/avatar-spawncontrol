@@ -9,7 +9,6 @@ import java.util.UUID;
 import com.avatar.avatar_spawncontrol.GlobalConfig;
 import com.avatar.avatar_spawncontrol.Main;
 
-import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TextColor;
@@ -56,7 +55,7 @@ public class Events {
     @SubscribeEvent
     public static void ticksServer(TickEvent.ServerTickEvent event) {
         if (event.phase == TickEvent.Phase.START) {
-            ServerLevel world = event.getServer().getLevel(Level.OVERWORLD);       
+            ServerLevel world = event.getServer().getLevel(Level.OVERWORLD);
             if (start) {
                 frequencyChat = GlobalConfig.loadFrequencyChat();
                 frequencyDespawn = GlobalConfig.loadFrequencyDespawn();
@@ -67,6 +66,7 @@ public class Events {
                 mobsUnBlocked = GlobalConfig.loadMobsUnBlocked();
                 start = false;
             }
+
             if (world != null) {
                 long time = world.getDayTime();
                 currentTime = time;
@@ -161,7 +161,7 @@ public class Events {
                 if (mobPerPlayer.size() == 0) {
                     break;
                 }
-                int totalMonsters = mobPerPlayer.get(player.getUUID());
+                int totalMonsters = mobPerPlayer.getOrDefault(player.getUUID(), 0);
                 if (totalMonsters >= maxMonsterPerPlayer) {
                     event.setResult(MobSpawnEvent.Result.DENY);
                     return;
