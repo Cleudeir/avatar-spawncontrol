@@ -16,7 +16,6 @@ public class GlobalConfig {
     public static ForgeConfigSpec.ConfigValue<Integer> DISTANT;
     public static ForgeConfigSpec.ConfigValue<Integer> HEIGHT;
     public static ForgeConfigSpec.ConfigValue<Integer> MAXMOSTERSPERPLAYER;
-    public static ForgeConfigSpec.ConfigValue<Integer> FREQUENCYCHAT;
     public static ForgeConfigSpec.ConfigValue<Integer> FREQUENCYDESPAWN;
     public static ForgeConfigSpec.ConfigValue<List<String>> MOBSBLOCKED;
     public static ForgeConfigSpec.ConfigValue<List<String>> MOBSUNBLOCKED;
@@ -33,11 +32,6 @@ public class GlobalConfig {
         // Configure the height mobs will spawn from players
         BUILDER.comment("Maximum height mobs will spawn above or below players").push("heightConfig");
         HEIGHT = BUILDER.define("height", 15);
-        BUILDER.pop();
-
-        // Configure the frequency of mob despawn and chat information updates
-        BUILDER.comment("Frequency (in seconds) for chat information updates").push("frequencyConfig");
-        FREQUENCYCHAT = BUILDER.define("frequencyChat", 240);
         BUILDER.pop();
 
         // Configure the frequency of mob despawn
@@ -75,16 +69,6 @@ public class GlobalConfig {
         if (CONFIG.isLoaded()) {
             // Retrieve data from config
             data = DISTANT.get();
-        }
-        return data;
-    }
-
-    public static int loadFrequencyChat() {
-        // Load the config if not already loaded
-        Integer data = 120;
-        if (CONFIG.isLoaded()) {
-            // Retrieve data from config
-            data = FREQUENCYCHAT.get();
         }
         return data;
     }

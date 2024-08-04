@@ -8,7 +8,10 @@ import java.util.UUID;
 
 import com.avatar.avatar_spawncontrol.GlobalConfig;
 import com.avatar.avatar_spawncontrol.Main;
+import com.mojang.brigadier.CommandDispatcher;
 
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TextColor;
@@ -16,9 +19,9 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
+import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.living.MobSpawnEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -29,7 +32,6 @@ import net.minecraftforge.registries.ForgeRegistries;
 public class Events {
 
     private static long currentTime = 0;
-    private static int frequencyChat = 240;
     private static int frequencyDespawn = 60;
     private static int distance = 80;
     private static int height = 15;
@@ -38,6 +40,8 @@ public class Events {
     private static List<String> mobsUnBlocked = new ArrayList<>();
     private static boolean start = true;
     private static Map<UUID, Integer> mobPerPlayer = new HashMap<>();
+    private static List<ServerPlayer> players = new ArrayList<>();
+    private static ServerLevel world = null;
 
     public static boolean checkPeriod(double seconds) {
         double divisor = (double) (seconds * 20);
@@ -55,9 +59,8 @@ public class Events {
     @SubscribeEvent
     public static void ticksServer(TickEvent.ServerTickEvent event) {
         if (event.phase == TickEvent.Phase.START) {
-            ServerLevel world = event.getServer().getLevel(Level.OVERWORLD);
+            world = event.getServer().getLevel(Level.OVERWORLD);
             if (start) {
-                frequencyChat = GlobalConfig.loadFrequencyChat();
                 frequencyDespawn = GlobalConfig.loadFrequencyDespawn();
                 distance = GlobalConfig.loadDistant();
                 height = GlobalConfig.loadHeight();
@@ -69,10 +72,8 @@ public class Events {
             if (world != null) {
                 long time = world.getDayTime();
                 currentTime = time;
-                List<ServerPlayer> players = event.getServer().getPlayerList().getPlayers();
-                Iterable<Entity> allEntities = world.getAllEntities();
+                players = event.getServer().getPlayerList().getPlayers();
                 if (checkPeriod(1)) {
-
                     for (ServerPlayer player : players) {
                         double px = player.getX();
                         double py = player.getY();
@@ -96,28 +97,32 @@ public class Events {
                             }
                         }
                         mobPerPlayer.put(player.getUUID(), count);
-
-                    }
-                }
-                //
-                if (checkPeriod(frequencyChat)) {
-                    if (players == null || mobPerPlayer.size() == 0)
-                        return;
-                    int number = 0;
-                    for (Entity entity : allEntities) {
-                        if (entity instanceof Monster) {
-                            number++;
-                        }
-                    }
-
-                    for (ServerPlayer player : players) {
-                        message(player, "Monsters around you: " + mobPerPlayer.get(player.getUUID()));
-                        message(player, "Total monsters map: " + number);
-                        // break;
                     }
                 }
             }
         }
+    }
+
+    public static void monsterCount(CommandSourceStack source) {
+        if (players == null || mobPerPlayer.isEmpty()) {
+            return;
+        }
+        for (ServerPlayer player : players) {
+            int nearbyMonsters = mobPerPlayer.getOrDefault(player.getUUID(), 0);
+            message(player, "Monsters around you: " + nearbyMonsters);
+        }
+    }
+
+    @SubscribeEvent
+    public static void onRegisterCommands(RegisterCommandsEvent event) {
+        CommandDispatcher<CommandSourceStack> dispatcher = event.getDispatcher();
+        dispatcher.register(
+                Commands.literal("countmonster")
+                        .requires(cs -> cs.hasPermission(2))
+                        .executes(ctx -> {
+                            monsterCount(ctx.getSource());
+                            return 1;
+                        }));
     }
 
     @SubscribeEvent
