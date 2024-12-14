@@ -1,8 +1,7 @@
-
-                # Events.java                
-                ## project structure
-                ```                    
-                avatar-spawncontrol/
+# Avatar-spawncontrol          
+## project structure
+```                    
+avatar-spawncontrol/
     README.md
     mine.xlsx
     build.gradle
@@ -31,8 +30,8 @@
         wrapper/
             gradle-wrapper.jar
             gradle-wrapper.properties                
-                ```
-                ## Projeto: Controlador de Spawn de Mobs para Minecraft Forge
+```
+## Projeto: Controlador de Spawn de Mobs para Minecraft Forge
 
 **Objetivo:** Este projeto é um mod para Minecraft Forge que permite aos administradores de servidores controlar com precisão os mecanismos de spawn de mobs.  O mod oferece configurações personalizáveis para distância de spawn, quantidade máxima de mobs por jogador, frequência de despawn, e listas de inclusão/exclusão de tipos de mobs.
 
