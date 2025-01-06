@@ -1,48 +1,8 @@
-# Avatar-spawncontrol          
-## project structure
-```                    
-avatar-spawncontrol/
-    README.md
-    mine.xlsx
-    build.gradle
-    LICENSE.txt
-    gradlew
-    changelog.txt
-    settings.gradle
-    CREDITS.txt
-    gradle.properties
-    gradlew.bat
-    src/
-        main/
-            java/
-                com/
-                    avatar/
-                        avatar_spawncontrol/
-                            GlobalConfig.java
-                            Main.java
-                            server/
-                                Events.java
-            resources/
-                pack.mcmeta
-                META-INF/
-                    mods.toml
-    gradle/
-        wrapper/
-            gradle-wrapper.jar
-            gradle-wrapper.properties                
-```
-## Projeto: Controlador de Spawn de Mobs para Minecraft Forge
+## Summary
 
-**Objetivo:** Este projeto é um mod para Minecraft Forge que permite aos administradores de servidores controlar com precisão os mecanismos de spawn de mobs.  O mod oferece configurações personalizáveis para distância de spawn, quantidade máxima de mobs por jogador, frequência de despawn, e listas de inclusão/exclusão de tipos de mobs.
+This project comprises a Minecraft Forge mod, "avatar_spawncontrol," designed to manage mob spawning.  The mod uses Forge's event system and configuration capabilities.  The `GlobalConfig` class handles configuration settings (spawn radius, mob blacklists/whitelists, maximum mob counts, despawn frequency).  The `Events` class listens for server ticks, registers a `/countmonster` command, and intercepts mob spawning events to apply the configured restrictions. The `Main` class serves as the mod's entry point, initializing the configuration, event listeners, and command registration.  A comprehensive changelog documents changes across several versions,  and project documentation details licensing, authorship, and third-party components.
 
-**Dependências:** Minecraft Forge.
 
-**Instalação:**  Clone o repositório, instale as dependências do Forge (se necessário), e coloque o arquivo `.jar` do mod na pasta `mods` do seu Minecraft.
+## Tech Stack
 
-**Uso:** O mod é configurado através de um arquivo de configuração.  Os administradores podem ajustar parâmetros para controlar o spawn de mobs. Um comando `/countmonster` mostra a quantidade de monstros próximos ao jogador.
-
-**Arquitetura:** O mod utiliza a API de eventos do Forge.  Eventos de spawn e tick do servidor são interceptados para modificar o comportamento padrão de spawn e despawn de mobs.  Configurações são carregadas de um arquivo e armazenadas em memória.
-
-**Pipeline:** O mod carrega as configurações, monitora eventos do servidor (spawn e tick), aplica as regras de spawn e despawn com base nas configurações, e fornece um comando para o jogador verificar a contagem de monstros próximos.
-                
-                
+Java, Minecraft Forge, Forge Config Spec, Brigadier (for command handling), ASM (likely for bytecode manipulation).
